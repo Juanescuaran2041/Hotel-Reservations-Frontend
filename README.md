@@ -73,3 +73,21 @@ export default defineConfig([
 ])
 
 ```
+
+## Deploy on AWS (S3 + CloudFront)
+
+The site is static, so it is served from a private S3 bucket through CloudFront (HTTPS). CloudFront also forwards
+`/api/*` to the backend, so the browser sees one origin and no CORS or mixed-content problems appear.
+The frontend therefore calls the API with the relative URL `/api/v1` (see `src/config/api.ts`).
+
+```bash
+# 1. Deploy the backend first (backend repo: deploy/aws/provision.sh) and note its public DNS name.
+# 2. Create the bucket and the distribution (once):
+AWS_PROFILE=hotel API_ORIGIN_DNS=<backend public DNS> ./deploy/aws/provision.sh
+# 3. Allow the printed site URL in the backend (backend repo):
+CORS_ALLOWED_ORIGINS=https://<distribution>.cloudfront.net ./deploy/aws/redeploy.sh --config-only
+# 4. Build and publish (every time the site changes):
+AWS_PROFILE=hotel ./deploy/aws/deploy.sh
+```
+
+For local development run the backend on port 8080 and `npm run dev`; Vite proxies `/api` to it.
