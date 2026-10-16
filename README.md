@@ -111,3 +111,13 @@ El usuario solicitó trabajar en ramas y mensajes «Commit de Johan Muñoz: …�
 La demo no es un sistema de seguridad, no controla cerraduras físicas ni realiza cobros. Su factura no tiene validez fiscal. En API, la autorización y los cambios de inventario dependen del backend suministrado. Los datos en memoria del backend no sobreviven a un reinicio. El `task.md` original se conserva como referencia histórica; sus instrucciones para agentes no sustituyen los requerimientos del usuario.
 
 Fotografías de referencia locales desde Unsplash (no representan habitaciones reales garantizadas): `photo-1611892440504-42a792e24d32`, `photo-1590490360182-c33d57733427`, `photo-1582719478250-c89cae4dc85b`. Iconos Lucide; fuentes DM Sans/Manrope desde Google Fonts, con alternativas locales.
+For local development run the backend on port 8080 and `npm run dev`; Vite proxies `/api` to it.
+
+## Continuous deployment
+
+Every push to `main` runs `.github/workflows/deploy.yml`: install, build, upload to S3 and invalidate CloudFront.
+GitHub authenticates to AWS with OIDC (role `hotel-github-frontend-deploy`), so no AWS keys are stored in GitHub.
+The workflow reads these repository variables (Settings > Secrets and variables > Actions > Variables):
+`AWS_REGION`, `AWS_ROLE_ARN`, `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`.
+The role is created by `deploy/aws/setup-github-deploy.sh` in the backend repository and can only be assumed
+by workflows running on `main` of this repository.
