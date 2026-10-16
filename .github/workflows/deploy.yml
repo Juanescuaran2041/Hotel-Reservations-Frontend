@@ -32,8 +32,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check TypeScript
+        run: npm run typecheck
+
+      - name: Check code quality
+        run: npm run lint
+
       - name: Build
         run: npm run build
+        env:
+          # Production talks to the real backend; CloudFront forwards /api/* to it on the same domain.
+          VITE_DATA_MODE: api
+          VITE_API_BASE_URL: /api/v1
 
       - name: Configure AWS credentials (OIDC, no stored keys)
         uses: aws-actions/configure-aws-credentials@v4
